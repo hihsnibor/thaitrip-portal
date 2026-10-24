@@ -3,908 +3,583 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ThaiDriver AI - 泰國包車促單與雙視角導航</title>
+  <title>包車報價神器 - 永久免費 3 秒生成手機報價單</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
-      --bg: #090D16;
-      --surface: #111827;
-      --surface-2: #1E293B;
-      --border: rgba(255, 255, 255, 0.09);
-      --primary: #6366F1;
-      --rose: #F43F5E;
-      --emerald: #10B981;
-      --amber: #F59E0B;
-      --text: #F8FAFC;
-      --muted: #94A3B8;
-      --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E2E8F0;
+      --navy: #0F172A;
+      --primary: #2563EB;
+      --green: #16A34A;
+      --amber: #D97706;
+      --text: #0F172A;
+      --muted: #64748B;
+      --spring: cubic-bezier(0.2, 1, 0.3, 1);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Inter", "PingFang TC", "Sarabun", sans-serif; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      max-width: 460px;
-      margin: 0 auto;
-      min-height: 100dvh;
-      padding-bottom: 96px;
-      overflow-x: hidden;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Sarabun", sans-serif; }
+    body { background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100dvh; padding-bottom: 90px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
 
-    /* 頂部精簡狀態列 */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      background: rgba(9, 13, 22, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .driver-identity {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-    .avatar-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--rose));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 14px;
+    /* 頂部極簡 Header */
+    .header {
+      background: var(--navy);
       color: white;
+      padding: 16px;
+      text-align: center;
     }
-    .driver-meta-title { font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-    .driver-meta-sub { font-size: 11px; color: var(--muted); }
-
-    .top-actions { display: flex; align-items: center; gap: 8px; }
-    .credit-badge {
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.4);
-      color: #C7D2FE;
-      padding: 5px 10px;
+    .free-pill {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ADE80;
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
       border-radius: 99px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s var(--ease-spring);
+      margin-bottom: 6px;
     }
-    .credit-badge:active { transform: scale(0.94); }
+    .header h1 { font-size: 19px; font-weight: 800; }
+    .header p { font-size: 12px; color: #94A3B8; margin-top: 3px; }
 
-    /* AI 一鍵快選情境區 */
-    .composer-section { padding: 14px 16px 8px; }
-    .section-label {
-      font-size: 11.5px;
+    /* 輸入區塊 (The 3-Second Input) */
+    .input-section {
+      background: white;
+      margin: 14px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .input-label {
+      font-size: 12.5px;
       font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.4px;
-      margin-bottom: 8px;
+      color: #334155;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
     }
-    .scenario-pills {
+    .quick-chips {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      margin-bottom: 10px;
       scrollbar-width: none;
     }
-    .scenario-pills::-webkit-scrollbar { display: none; }
-    .pill-btn {
+    .quick-chips::-webkit-scrollbar { display: none; }
+    .chip {
       flex-shrink: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: #CBD5E1;
-      padding: 9px 13px;
-      border-radius: 12px;
-      font-size: 12.5px;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11.5px;
       font-weight: 600;
+      color: #475569;
       cursor: pointer;
-      transition: transform 0.2s var(--ease-spring), background-color 0.2s, border-color 0.2s;
     }
-    .pill-btn:active { transform: scale(0.95); }
-    .pill-btn.active {
-      background: rgba(99, 102, 241, 0.18);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    .prompt-box {
-      position: relative;
-      margin-top: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 12px;
-      transition: border-color 0.2s;
-    }
-    .prompt-box:focus-within { border-color: var(--primary); }
-    .prompt-input {
+    .chip:active { transform: scale(0.95); }
+    
+    textarea {
       width: 100%;
-      background: transparent;
-      border: none;
-      color: white;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 10px 12px;
       font-size: 13.5px;
-      line-height: 1.45;
+      line-height: 1.5;
+      color: #0F172A;
       resize: none;
       outline: none;
     }
-    .prompt-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-    }
-    .btn-generate {
-      background: linear-gradient(135deg, #6366F1, #EC4899);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-size: 12.5px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.18s var(--ease-spring), opacity 0.2s;
-    }
-    .btn-generate:active { transform: scale(0.95); }
+    textarea:focus { border-color: var(--primary); background: white; }
 
-    /* 滑塊式雙視角切換器 (Segmented Control with Sliding Pill) */
-    .segmented-wrap { padding: 8px 16px; }
-    .segmented-control {
-      position: relative;
+    .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 4px;
+      gap: 8px;
+      margin-top: 10px;
     }
-    .seg-indicator {
-      position: absolute;
-      top: 4px;
-      bottom: 4px;
-      left: 4px;
-      width: calc(50% - 4px);
-      background: var(--rose);
-      border-radius: 10px;
-      transition: transform 0.28s var(--ease-spring), background-color 0.28s;
-      z-index: 1;
+    input {
+      width: 100%;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: #0F172A;
+      outline: none;
     }
-    .segmented-control[data-role="driver"] .seg-indicator {
-      transform: translateX(100%);
-      background: #2563EB;
-    }
-    .seg-btn {
-      position: relative;
-      z-index: 2;
-      background: transparent;
+    input:focus { border-color: var(--primary); }
+
+    .btn-create {
+      width: 100%;
+      background: var(--navy);
+      color: white;
       border: none;
-      color: var(--muted);
-      padding: 9px 0;
-      font-size: 12.5px;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 14.5px;
       font-weight: 800;
       cursor: pointer;
-      transition: color 0.2s;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.15s var(--spring);
     }
-    .seg-btn.active { color: white; }
+    .btn-create:active { transform: scale(0.97); }
 
-    /* 主行程預覽卡 (支援 Compositor 動畫與 Skeleton) */
-    .stage-container {
-      padding: 6px 16px;
-      transition: opacity 0.22s ease, transform 0.22s var(--ease-spring);
-    }
-    .stage-container.switching {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-
-    .itinerary-shell {
-      background: #F8FAFC;
-      color: #0F172A;
-      border-radius: 20px;
+    /* 生成出來的報價單預覽 (The Resulting Quote) */
+    .quote-preview {
+      background: white;
+      margin: 14px;
+      border-radius: 18px;
+      border: 2px solid #38BDF8;
       overflow: hidden;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
     }
-    .itinerary-hero {
+    .quote-header {
       background: linear-gradient(135deg, #0F172A, #1E293B);
       color: white;
       padding: 18px 16px;
     }
-    .ai-reason-tag {
+    .quote-badge {
       display: inline-block;
-      background: rgba(244, 63, 94, 0.2);
-      color: #FDA4AF;
-      border: 1px solid rgba(244, 63, 94, 0.35);
+      background: rgba(56, 189, 248, 0.2);
+      color: #7DD3FC;
+      border: 1px solid rgba(56, 189, 248, 0.4);
       font-size: 11px;
       font-weight: 700;
-      padding: 3px 9px;
+      padding: 2px 8px;
       border-radius: 99px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
-    .itinerary-title { font-size: 17px; font-weight: 800; line-height: 1.35; margin-bottom: 10px; }
-    .itinerary-meta {
+    .quote-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .quote-driver-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
+      font-size: 12.5px;
       color: #CBD5E1;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-    .price-highlight { color: #FBBF24; font-weight: 800; font-size: 14px; }
-
-    .spots-list { padding: 12px; }
-    .spot-card {
-      background: white;
-      border-radius: 14px;
-      border: 1px solid #E2E8F0;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-    .spot-card:last-child { margin-bottom: 0; }
-    .img-wrap { position: relative; width: 100%; height: 170px; background: #0F172A; }
-    .spot-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .cam-pin-badge {
-      position: absolute;
-      bottom: 8px;
-      left: 8px;
-      right: 8px;
-      background: rgba(15, 23, 42, 0.86);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      color: #F8FAFC;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-    .cam-pin-link {
-      color: #38BDF8;
-      text-decoration: none;
-      font-weight: 800;
-      white-space: nowrap;
-      margin-left: 6px;
-    }
-    .spot-content { padding: 13px; }
-    .spot-time-badge {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--rose);
-      margin-bottom: 3px;
-    }
-    .spot-name { font-size: 15px; font-weight: 800; margin-bottom: 5px; color: #0F172A; }
-    .spot-desc { font-size: 12.5px; color: #475569; line-height: 1.5; }
-    .callout-box {
-      margin-top: 9px;
-      padding: 9px 11px;
-      border-radius: 8px;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-    .callout-tourist { background: #FFF1F2; border-left: 3.5px solid var(--rose); color: #881337; }
-    .callout-driver { background: #EFF6FF; border-left: 3.5px solid #2563EB; color: #1E3A8A; }
-
-    .nav-btn-row {
-      display: flex;
-      gap: 6px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 8px;
       margin-top: 8px;
     }
-    .btn-map {
-      flex: 1;
-      background: #2563EB;
-      color: white;
-      text-decoration: none;
-      text-align: center;
-      padding: 7px;
-      border-radius: 7px;
-      font-size: 11.5px;
-      font-weight: 700;
-    }
-    .btn-copy-th {
-      background: #E2E8F0;
-      color: #1E293B;
-      border: none;
-      padding: 7px 10px;
-      border-radius: 7px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
+    .quote-price {
+      font-size: 17px;
+      font-weight: 800;
+      color: #FBBF24;
     }
 
-    .legal-footer {
-      padding: 10px 14px;
-      background: #F1F5F9;
-      font-size: 10.5px;
+    /* 行程清單 */
+    .quote-body { padding: 14px; }
+    .spot-block {
+      border-left: 3px solid var(--primary);
+      padding-left: 12px;
+      margin-bottom: 14px;
+    }
+    .spot-block:last-child { margin-bottom: 0; }
+    .spot-time { font-size: 11px; font-weight: 800; color: var(--primary); }
+    .spot-name { font-size: 14.5px; font-weight: 700; margin: 2px 0; color: #0F172A; }
+    .spot-desc { font-size: 12.5px; color: #475569; line-height: 1.45; }
+    .spot-photo-tip {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    .quote-terms {
+      background: #F8FAFC;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 11.5px;
       color: #64748B;
-      line-height: 1.45;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    /* 免費工具水印 (The Viral Hook) */
+    .viral-footer {
+      background: #F1F5F9;
+      padding: 10px;
+      text-align: center;
+      font-size: 11.5px;
+      color: #475569;
       border-top: 1px solid #E2E8F0;
     }
+    .viral-footer strong { color: var(--primary); }
 
-    /* 底部懸浮膠囊列 (Floating Action Dock) */
-    .floating-dock {
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 28px);
-      max-width: 432px;
-      background: rgba(17, 24, 39, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.14);
+    /* Greg 商業化入口：實體桌牌加購 (Upsell Card) */
+    .upsell-section {
+      background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+      border: 1px solid #FCD34D;
+      margin: 14px;
+      padding: 16px;
       border-radius: 16px;
-      padding: 8px;
-      display: flex;
-      gap: 8px;
-      z-index: 45;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
-    .dock-btn {
-      flex: 1;
+    .upsell-badge {
+      background: var(--amber);
+      color: white;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .upsell-title { font-size: 15px; font-weight: 800; color: #78350F; margin: 6px 0 4px; }
+    .upsell-desc { font-size: 12px; color: #92400E; line-height: 1.5; margin-bottom: 10px; }
+    .btn-buy-poster {
+      width: 100%;
+      background: #D97706;
+      color: white;
       border: none;
-      padding: 11px 8px;
-      border-radius: 11px;
-      font-size: 12.5px;
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.15s var(--ease-spring);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    .dock-btn:active { transform: scale(0.95); }
-    .dock-btn-primary { background: #06C755; color: white; }
-    .dock-btn-secondary { background: var(--surface-2); color: white; border: 1px solid var(--border); }
 
-    /* Toast 輕量提示 (取代阻斷式 alert) */
+    /* 底部固定分享按鈕 */
+    .dock {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      z-index: 50;
+    }
+    .btn-share {
+      flex: 1;
+      background: #16A34A;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-qr {
+      background: var(--navy);
+      color: white;
+      border: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Toast */
     .toast {
       position: fixed;
-      top: 68px;
+      top: 16px;
       left: 50%;
       transform: translate(-50%, -20px);
-      background: #10B981;
-      color: #06281E;
-      font-weight: 800;
-      font-size: 12.5px;
-      padding: 9px 16px;
+      background: #0F172A;
+      color: white;
+      padding: 8px 16px;
       border-radius: 99px;
-      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+      font-size: 12px;
+      font-weight: 700;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s var(--ease-spring);
-      z-index: 200;
-      white-space: nowrap;
+      transition: all 0.25s var(--spring);
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    /* 原生 <dialog> Top-Layer 流暢彈窗 */
+    /* 原生 <dialog> 實體桌牌訂購視窗 */
     dialog {
       margin: auto;
       width: calc(100% - 32px);
       max-width: 400px;
-      background: var(--surface);
-      color: var(--text);
+      background: white;
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 20px;
-      opacity: 0;
-      transform: translateY(16px) scale(0.97);
-      transition:
-        opacity 0.22s ease-out,
-        transform 0.22s var(--ease-spring),
-        overlay 0.22s allow-discrete,
-        display 0.22s allow-discrete;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
-    dialog[open] {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-    @starting-style {
-      dialog[open] {
-        opacity: 0;
-        transform: translateY(16px) scale(0.97);
-      }
-    }
-    dialog::backdrop {
-      background-color: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .seg-indicator, .stage-container, .toast, dialog {
-        transition: none;
-      }
-    }
-
-    .dialog-title { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
-    .dialog-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
-    .field-label { display: block; font-size: 11.5px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px; }
-    .field-input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: white;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 13.5px;
-      margin-bottom: 10px;
-    }
-    .btn-block {
-      width: 100%;
-      border: none;
-      padding: 12px;
-      border-radius: 11px;
-      font-weight: 800;
-      font-size: 13.5px;
-      cursor: pointer;
-      margin-top: 6px;
-    }
-    .qr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
-    .qr-card { background: white; color: #0F172A; padding: 10px; border-radius: 12px; text-align: center; }
+    dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
   </style>
 </head>
 <body>
 
-  <!-- 非阻斷式 Toast 通知 -->
-  <div id="toast" class="toast">✅ 已複製專屬連結</div>
+  <div id="toast" class="toast">✅ 已複製報價單連結！直接貼到 LINE</div>
 
-  <!-- 頂部司機品牌與算力列 -->
-  <header class="topbar">
-    <div class="driver-identity" onclick="openDialog('profileDialog')" title="點擊修改司機名片">
-      <div class="avatar-circle" id="avatarChar">明</div>
-      <div>
-        <div class="driver-meta-title">
-          <span id="uiDriverName">阿明師 (Ming)</span>
-          <span style="font-size:10px; color:var(--primary);">✏️</span>
-        </div>
-        <div class="driver-meta-sub" id="uiDriverCar">Toyota 9人座 ｜ 1AB-8899</div>
-      </div>
-    </div>
-    <div class="top-actions">
-      <button class="credit-badge" id="creditBtn" onclick="openDialog('paywallDialog')">
-        ⚡ 算力 <span id="creditCount">3</span>
-      </button>
-    </div>
+  <!-- Header -->
+  <header class="header">
+    <div class="free-pill">100% 永久免費工具</div>
+    <h1>包車報價單 3 秒生成器</h1>
+    <p>貼上客人需求，立刻生成專屬手機報價單，發到 LINE 成單率翻倍</p>
   </header>
 
-  <!-- 精簡 AI 行程產生器 -->
-  <section class="composer-section">
-    <div class="section-label">
-      <span>1. 點選客人需求（或貼上 LINE 對話）</span>
-      <span style="color:#A5B4FC;">AI 10秒客製</span>
+  <!-- 3 秒生成區 -->
+  <section class="input-section">
+    <div class="input-label">
+      <span>1. 點選或貼上客人需求：</span>
+      <span style="color:var(--muted); font-size:11px;">免註冊即可用</span>
     </div>
-    <div class="scenario-pills">
-      <button class="pill-btn active" id="pill-safari" onclick="selectScenario('safari', this)">🦒 4女北碧拍長頸鹿</button>
-      <button class="pill-btn" id="pill-bkk" onclick="selectScenario('bkk', this)">🛕 帶長輩曼谷老街大佛</button>
-      <button class="pill-btn" id="pill-pattaya" onclick="selectScenario('pattaya', this)">🎠 情侶芭達雅奇幻影城</button>
+    
+    <div class="quick-chips">
+      <div class="chip" onclick="fillQuick('4位女生住曼谷，包車一天去北碧府拍長頸鹿+日式咖啡廳，不想走太多路', '北碧府長頸鹿吉普車 VIP 一日遊', 3500)">🦒 北碧長頸鹿一日遊</div>
+      <div class="chip" onclick="fillQuick('2大2小帶長輩去曼谷老街逛咖啡店，下午看水門寺巨佛，要平坦好走', '曼谷 2026 嵩越路老街 & 水門寺一日遊', 3200)">🛕 曼谷老街大佛一日遊</div>
+      <div class="chip" onclick="fillQuick('情侶2人去芭達雅House of Benedict拍室內大片，傍晚看海景日落餐廳', '芭達雅奇幻影城 & 海景日落一日遊', 3800)">🎠 芭達雅網美拍照一日遊</div>
     </div>
 
-    <div class="prompt-box">
-      <textarea id="promptInput" class="prompt-input" rows="2">我們 4 個女生住曼谷阿索克，想包車一天去北碧府跟長頸鹿拍照，還想去網美咖啡廳，不想走太多路</textarea>
-      <div class="prompt-footer">
-        <span style="font-size:11px; color:var(--muted);">自動排順路動線 + 拍照機位 + 泰文導航</span>
-        <button class="btn-generate" id="generateBtn" onclick="triggerAiGenerate()">✨ AI 重新生成</button>
+    <textarea id="rawInput" rows="2" placeholder="例如：4位女生去北碧動物園跟咖啡廳，預算3500...">4位女生住曼谷，包車一天去北碧府拍長頸鹿+日式咖啡廳，不想走太多路</textarea>
+
+    <div class="grid-2">
+      <div>
+        <label style="font-size:11px; font-weight:700; color:#475569;">司機稱呼</label>
+        <input type="text" id="driverName" value="阿明師 (Ming)">
       </div>
+      <div>
+        <label style="font-size:11px; font-weight:700; color:#475569;">車款 / 車牌</label>
+        <input type="text" id="driverCar" value="Toyota 9人座 (1AB-8899)">
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:6px;">
+      <div>
+        <label style="font-size:11px; font-weight:700; color:#475569;">單日全包報價 (THB)</label>
+        <input type="number" id="quotePrice" value="3500">
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:700; color:#475569;">司機 LINE ID</label>
+        <input type="text" id="driverLine" value="bkk_ming_888">
+      </div>
+    </div>
+
+    <button class="btn-create" onclick="generateQuote()">
+      ⚡ 3 秒生成手機報價單
+    </button>
+  </section>
+
+  <!-- 生成出來的精美手機報價單 (即將發給客人的樣式) -->
+  <section class="quote-preview">
+    <div class="quote-header">
+      <div class="quote-badge">專屬包車確認單</div>
+      <div class="quote-title" id="outTitle">北碧府長頸鹿吉普車 VIP 一日遊</div>
+      <div class="quote-driver-row">
+        <span id="outDriverMeta">專屬司機：阿明師 (Ming) ｜ Toyota 9人座</span>
+        <div class="quote-price"><span id="outPrice">3,500</span> THB</div>
+      </div>
+    </div>
+
+    <div class="quote-body" id="outSpotsList">
+      <!-- 動態行程節點 -->
+    </div>
+
+    <div class="quote-terms" style="margin: 0 14px 14px;">
+      <strong>費用包含</strong>：10 小時專屬車輛使用、司機油資、高速公路過路費、乘客平安險。<br>
+      <strong>貼心提醒</strong>：門票由遊客現場自理。車資於行程當日現場以現金交付司機本人即可。
+    </div>
+
+    <!-- Greg 的病毒水印：每個乘客與轉單司機都會看到 -->
+    <div class="viral-footer">
+      📄 此報價單由 <strong>【包車報價神器】</strong> 3 秒免費生成 ｜ 免費製作你的報價單 ↗
     </div>
   </section>
 
-  <!-- 絲滑雙視角切換器 -->
-  <div class="segmented-wrap">
-    <div class="segmented-control" id="roleSegment" data-role="tourist">
-      <div class="seg-indicator"></div>
-      <button class="seg-btn active" id="segTourist" onclick="switchRole('tourist')">📸 遊客打卡頁 (中文)</button>
-      <button class="seg-btn" id="segDriver" onclick="switchRole('driver')">🧭 司機導航與小費 (泰文)</button>
+  <!-- Greg 模式商業化：實體週邊變現 (Upsell Physical Products) -->
+  <section class="upsell-section">
+    <span class="upsell-badge">司機賺小費神器</span>
+    <div class="upsell-title">🖨️ 加購：車內椅背「雙面壓克力 QR 立牌」</div>
+    <div class="upsell-desc">
+      看得到摸得到的實體桌牌！含雙面高解析彩色印刷 + 防刮壓克力支架，直接掛在副駕椅背。左邊乘客掃碼看拍照姿勢、右邊司機掃碼看泰文導航，現場小費多拿 500 銖！
     </div>
+    <button class="btn-buy-poster" onclick="openDialog('orderDialog')">
+      📦 訂製我的專屬實體桌牌（特價 390 THB・含郵寄送到府）
+    </button>
+  </section>
+
+  <!-- 底部固定發送列 -->
+  <div class="dock">
+    <button class="btn-share" onclick="copyQuoteUrl()">
+      📲 複製專屬報價單發到 LINE
+    </button>
+    <button class="btn-qr" onclick="openDialog('qrDialog')">
+      🖨️ 預覽桌牌
+    </button>
   </div>
 
-  <!-- 主預覽舞台 -->
-  <main class="stage-container" id="stageContainer">
-    <div class="itinerary-shell">
-      <div class="itinerary-hero">
-        <div class="ai-reason-tag" id="heroAiTag">🤖 AI 動線最佳化：少走路・黃金光線・高出片</div>
-        <div class="itinerary-title" id="heroTitle">北碧府長頸鹿吉普車 & 日式水上鳥居專車提案</div>
-        <div class="itinerary-meta">
-          <span id="heroDriverMeta">駕駛：阿明師 ｜ Toyota 9人座</span>
-          <span class="price-highlight" id="heroPrice">3,500 THB / 車</span>
-        </div>
-      </div>
-
-      <div class="spots-list" id="spotsList"></div>
-
-      <div class="legal-footer">
-        ⚖️ <strong>合規聲明</strong>：本頁為駕駛個人提供之路線參考，車資當日現場直接交付泰銖現金予持牌駕駛，平台不代收任何旅遊費用。
-      </div>
+  <!-- Dialog 1: 實體桌牌訂購彈窗 (變現閉環) -->
+  <dialog id="orderDialog" closedby="any">
+    <h3 style="font-size:17px; font-weight:800; margin-bottom:6px;">📦 訂製專屬車內椅背雙 QR 壓克力立牌</h3>
+    <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">包含：司機姓名車牌客製 + 雙面防水印刷 + 專用椅背掛繩 + 全泰國宅配到府。</p>
+    
+    <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; font-size:12px; margin-bottom:12px;">
+      <strong>費用</strong>：390 THB（免運費）<br>
+      <strong>付款方式</strong>：PromptPay 掃碼付款 或 貨到付款<br>
+      <strong>製作時間</strong>：下單後 24 小時內寄出
     </div>
-  </main>
 
-  <!-- 底部懸浮操作列 -->
-  <nav class="floating-dock">
-    <button class="dock-btn dock-btn-primary" onclick="shareToLine()">📲 複製乘客連結發 LINE</button>
-    <button class="dock-btn dock-btn-secondary" onclick="openQrDialog()">🖨️ 椅背雙 QR</button>
-    <button class="dock-btn dock-btn-secondary" onclick="openDialog('closerDialog')">💬 殺價救援</button>
-  </nav>
+    <label style="font-size:11px; font-weight:700;">收件人姓名</label>
+    <input type="text" id="shipName" placeholder="例如：阿明" style="margin-bottom:8px;">
+    
+    <label style="font-size:11px; font-weight:700;">收件地址（全泰國可送）</label>
+    <input type="text" id="shipAddr" placeholder="例如：曼谷市區住家或車隊地址" style="margin-bottom:8px;">
+    
+    <label style="font-size:11px; font-weight:700;">聯絡電話</label>
+    <input type="tel" id="shipPhone" placeholder="08x-xxx-xxxx" style="margin-bottom:12px;">
 
-  <!-- Dialog 1: 修改司機名片 -->
-  <dialog id="profileDialog" closedby="any" aria-labelledby="profTitle">
-    <h3 class="dialog-title" id="profTitle">✏️ 10 秒設定你的司機名片</h3>
-    <p class="dialog-sub">修改後將即時同步至所有發給客人的行程網頁與 QR Code。</p>
-    <label class="field-label">你的稱呼</label>
-    <input class="field-input" id="fName" value="阿明師 (Ming)">
-    <label class="field-label">車款與車牌</label>
-    <input class="field-input" id="fCar" value="Toyota 9人座 ｜ 1AB-8899">
-    <label class="field-label">單日包車報價 (THB)</label>
-    <input class="field-input" id="fPrice" type="number" value="3500">
-    <button class="btn-block" style="background:var(--primary); color:white;" onclick="saveDriverProfile()">儲存並更新預覽</button>
+    <button class="btn-create" style="background:#16A34A;" onclick="submitOrder()">
+      ✅ 確認送出訂單 (390 THB)
+    </button>
+    <button onclick="closeDialog('orderDialog')" style="width:100%; background:transparent; border:none; color:var(--muted); font-size:12px; padding:8px; cursor:pointer; margin-top:4px;">取消</button>
   </dialog>
 
-  <!-- Dialog 2: AI 殺價救援話術 -->
-  <dialog id="closerDialog" closedby="any" aria-labelledby="closerTitle">
-    <h3 class="dialog-title" id="closerTitle">💬 AI 殺價救援高情商回覆</h3>
-    <p class="dialog-sub">當客人嫌「別家才報 3,000 銖」時，一鍵複製這段話術挽回訂單：</p>
-    <div style="background:var(--bg); border:1px solid var(--border); padding:12px; border-radius:12px; font-size:12.5px; line-height:1.6; margin-bottom:12px;" id="closerText">
-      「美女您好！市面上 3,000 銖通常不含高速公路過路費（來回會多塞 1.5 小時）。我們報價是全包價（含高速、冰水），而且我非常熟悉園區的 3 個神級拍照角度，現場會全程幫妳們拍出大片，絕不讓妳們白跑一趟！」
-    </div>
-    <button class="btn-block" style="background:var(--emerald); color:#052E16;" onclick="copyCloser()">📋 複製中文話術貼回 LINE</button>
-  </dialog>
-
-  <!-- Dialog 3: 車內椅背雙 QR 立牌 -->
-  <dialog id="qrDialog" closedby="any" aria-labelledby="qrTitle">
-    <h3 class="dialog-title" id="qrTitle" style="text-align:center;">🖨️ 車內椅背「雙 QR 服務立牌」</h3>
-    <p class="dialog-sub" style="text-align:center;">左邊給乘客掃描看拍照姿勢，右邊自己掃看泰文導航</p>
-    <div class="qr-grid">
-      <div class="qr-card">
-        <div style="font-size:11px; font-weight:800; color:#E11D48;">📸 乘客掃描打卡</div>
-        <div id="qrTouristBox" style="display:flex; justify-content:center; margin:8px 0;"></div>
-        <div style="font-size:10px; color:#475569;">查看今日網美機位</div>
+  <!-- Dialog 2: QR 桌牌預覽 -->
+  <dialog id="qrDialog" closedby="any">
+    <h3 style="font-size:16px; font-weight:800; text-align:center; margin-bottom:4px;">🖨️ 椅背雙面立牌內容預覽</h3>
+    <p style="font-size:11px; color:var(--muted); text-align:center; margin-bottom:10px;">左邊給乘客看拍照教學，右邊司機自己看泰文導航</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div style="border:1px solid #CBD5E1; padding:8px; border-radius:8px; text-align:center;">
+        <div style="font-size:10.5px; font-weight:800; color:#E11D48;">📸 乘客掃描</div>
+        <div id="qrTourist" style="display:flex; justify-content:center; margin:6px 0;"></div>
+        <div style="font-size:9.5px; color:#475569;">今日拍照姿勢教學</div>
       </div>
-      <div class="qr-card">
-        <div style="font-size:11px; font-weight:800; color:#2563EB;">🧭 คนขับสแกนนำทาง</div>
-        <div id="qrDriverBox" style="display:flex; justify-content:center; margin:8px 0;"></div>
-        <div style="font-size:10px; color:#475569;">แผนที่ไทย & ที่จอดรถฟรี</div>
+      <div style="border:1px solid #CBD5E1; padding:8px; border-radius:8px; text-align:center;">
+        <div style="font-size:10.5px; font-weight:800; color:#2563EB;">🧭 司機導航</div>
+        <div id="qrDriver" style="display:flex; justify-content:center; margin:6px 0;"></div>
+        <div style="font-size:9.5px; color:#475569;">แผนที่ไทย & ที่จอดรถ</div>
       </div>
     </div>
-    <button class="btn-block" style="background:var(--surface-2); color:white;" onclick="closeDialog('qrDialog')">關閉視窗</button>
-  </dialog>
-
-  <!-- Dialog 4: Paywall 儲值與車隊團購碼 -->
-  <dialog id="paywallDialog" closedby="any" aria-labelledby="payTitle">
-    <h3 class="dialog-title" id="payTitle">💎 解鎖無限 AI 算力 & 泰文後台</h3>
-    <p class="dialog-sub">只要多接 1 單或現場多拿 1 次 500 銖拍照小費，立即回本 3 倍！</p>
-    <button class="btn-block" style="background:var(--amber); color:#0F172A;" onclick="unlockPro('Pro 包月 499 THB')">🔥 Pro 包月無限用 — 499 THB / 月</button>
-    <button class="btn-block" style="background:var(--primary); color:white;" onclick="unlockPro('輕量 10 點包 199 THB')">⚡ 儲值 10 點算力 — 199 THB</button>
-    <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); display:flex; gap:6px;">
-      <input class="field-input" id="vipCodeInput" placeholder="輸入車隊團購碼 VIP888" style="margin:0; flex:1;">
-      <button onclick="redeemVip()" style="background:var(--emerald); color:#052E16; border:none; padding:0 14px; border-radius:10px; font-weight:800; cursor:pointer;">兌換</button>
-    </div>
+    <button onclick="closeDialog('qrDialog')" style="width:100%; background:#0F172A; color:white; border:none; padding:10px; border-radius:8px; font-size:12px; font-weight:700; margin-top:12px; cursor:pointer;">關閉</button>
   </dialog>
 
   <script>
-    let credits = 3;
-    let isPro = false;
-    let currentKey = 'safari';
-    let currentRole = 'tourist';
+    let currentTitle = '北碧府長頸鹿吉普車 VIP 一日遊';
 
-    const SCENARIOS = {
+    const TEMPLATES = {
       safari: {
-        prompt: '我們 4 個女生住曼谷阿索克，想包車一天去北碧府跟長頸鹿拍照，還想去網美咖啡廳，不想走太多路',
-        tag: '🤖 AI 動線最佳化：少走路・10:00黃金光線・高出片',
-        title: '北碧府長頸鹿吉普車 & 日式水上鳥居專車提案',
-        price: 3500,
+        title: '北碧府長頸鹿吉普車 VIP 一日遊',
         spots: [
-          {
-            time: '10:00 - 12:30 ｜ IG 爆款 NO.1',
-            name: '北碧府 Safari Park 敞篷吉普車長頸鹿合照',
-            img: 'https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=800&auto=format&fit=crop&q=80',
-            camSpotZh: '📍 拍攝點：草食動物 3 號區・吉普車停靠大樹下 (14.0792°N, 99.4688°E)',
-            camSpotTh: '📍 จุดยืนถ่าย: โซนยีราฟ จุดจอดรถจี๊ปใต้ต้นไม้ใหญ่ (ขึ้นยืนบนฝากระโปรงหน้ารถ)',
-            camGps: '14.0792,99.4688',
-            desc: '專車直達免走路！搭乘復古敞篷吉普車，長頸鹿直接探頭進車廂討胡蘿蔔，斑馬隨車漫步。',
-            photo: '📸 <strong>精準站位與構圖</strong>：<br>• <strong>機位 1（貼臉俯拍）</strong>：拍攝者踩上吉普車前引擎蓋，乘客坐車頂中央，胡蘿蔔舉在頭頂右上方。<br>• <strong>機位 2（荒野大長腿）</strong>：拍攝者退至車頭左前方 4 公尺草地，切 0.5x 超廣角蹲低仰拍。',
-            thaiName: 'สวนสัตว์เปิด ซาฟารี ปาร์ค กาญจนบุรี',
-            map: 'Safari+Park+Kanchanaburi',
-            driverTip: '⚠️ <strong>จุดจอดรถฟรี & ห้องแอร์:</strong> เลี้ยวขวาหลังจุดขายตั๋ว มีห้องแอร์คนขับฟรี<br>💵 <strong>จุดยืนถ่ายรับทิป 500฿:</strong> ยืนห่างหน้ารถจี๊ป 4 เมตรทางซ้าย ย่อตัวต่ำปรับกล้อง 0.5x ถ่ายย้อนขึ้นหาลูกค้าบนหลังคารถ'
-          },
-          {
-            time: '13:30 - 15:00 ｜ 小紅書人氣庭園',
-            name: 'Kan Machi Cafe 日式鳥居水上咖啡廳',
-            img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80',
-            camSpotZh: '📍 拍攝點：入口紅色大鳥居後方・錦鯉池中央水上石階第 4 格 (14.0416°N, 99.5231°E)',
-            camSpotTh: '📍 จุดยืนถ่าย: สะพานไม้ฝั่งตรงข้ามบ่อปลาคราฟ เล็งตรงกลางเสาโทริอิสีแดง',
-            camGps: '14.0416,99.5231',
-            desc: '下車即達！壯麗紅色鳥居、水上石階與錦鯉池，吹冷氣喝抹茶拍出京都感大片。',
-            photo: '📸 <strong>精準站位與構圖</strong>：<br>• <strong>乘客位置</strong>：站在錦鯉池中央水上石階第 4 格回眸。<br>• <strong>司機站位</strong>：站在池塘對岸木棧道正中央，開啟人像 2x 鏡頭平視對焦，避開兩側雜物。',
-            thaiName: 'กาญ มาชิ คาเฟ่ (Kan Machi Cafe)',
-            map: 'Kan+Machi+Cafe+Kanchanaburi',
-            driverTip: '⚠️ <strong>จุดจอดรถ & มุมถ่าย:</strong> จอดรถด้านหน้าคาเฟ่ พาลูกค้าเดินไปที่หินกลางบ่อปลา แล้วคนขับยืนถ่ายจากสะพานไม้ฝั่งตรงข้าม'
-          }
+          { time: '10:00 - 12:30', name: '北碧府 Safari Park 敞篷吉普車合照', desc: '專車直達！復古敞篷吉普車與長頸鹿零距離合影，斑馬在側漫步。', tip: '📸 司機現場幫拍：車頂俯拍長頸鹿探頭 + 0.5x 超廣角大長腿' },
+          { time: '13:30 - 15:00', name: 'Kan Machi Cafe 日式鳥居水上咖啡廳', desc: '下車即達！紅色大鳥居、水上石階與錦鯉池，吹冷氣享用下午茶。', tip: '📸 司機現場幫拍：站在水上石階中央回眸對焦' },
+          { time: '15:30 - 16:30', name: '桂河大橋歷史鐵道漫步', desc: '走訪二戰歷史鐵道古蹟，遠眺桂河壯麗水色。', tip: '📸 司機現場幫拍：鐵軌中央延伸感拍照' }
         ]
       },
       bkk: {
-        prompt: '2 大 2 小帶爸媽去曼谷最新景點，想看大佛跟好逛老街吃美食，要平坦好上下車',
-        tag: '🤖 AI 動線最佳化：長輩友善・有電梯・免日曬奔波',
-        title: '曼谷 2026 嵩越路百年老街 & 水門寺巨佛無障礙一日遊',
-        price: 3200,
+        title: '曼谷 2026 嵩越路老街 & 水門寺大佛一日遊',
         spots: [
-          {
-            time: '10:00 - 13:00 ｜ 2026 街拍霸主',
-            name: '嵩越路河畔文青老街 (Song Wat Road)',
-            img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80',
-            camSpotZh: '📍 拍攝點：Song Wat 巷口「I Wanna Bangkok」巨型白牆正對面馬路 (13.7381°N, 100.5092°E)',
-            camSpotTh: '📍 จุดยืนถ่าย: ฝั่งตรงข้ามกำแพงเพ้นท์ลาย I Wanna Bangkok (ข้างร้าน ई-กา)',
-            camGps: '13.7381,100.5092',
-            desc: '定點下車免走遠路！百年老屋與河畔精品咖啡館交錯，品嚐米其林必比登老店美食。',
-            photo: '📸 <strong>精準站位與構圖</strong>：<br>• <strong>機位 1</strong>：長輩站在塗鴉白牆斑馬線前，司機站對街人行道用 1x 鏡頭將老屋與大字完整同框。<br>• <strong>機位 2</strong>：河畔 RONGROS 餐廳外木棧道，背對昭披耶河拍逆光剪影。',
-            thaiName: 'ถนนทรงวาด (Song Wat Road)',
-            map: 'Song+Wat+Road+Bangkok',
-            driverTip: '⚠️ <strong>จุดจอดรถ:</strong> จอดในวัดสัมพันธวงศ์ พาลูกค้าเดิน 30 เมตรไปหน้ากำแพงเพ้นท์ I Wanna Bangkok เพื่อถ่ายรูปครอบครัว'
-          },
-          {
-            time: '14:30 - 17:00 ｜ TikTok 破億地標',
-            name: '水門寺 20 層樓金色大佛 & 翡翠琉璃塔',
-            img: 'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800&auto=format&fit=crop&q=80',
-            camSpotZh: '📍 拍攝點：① 白塔 5 樓翡翠琉璃殿正中央 ｜ ② 運河對岸 Soi Phet Kasem 15 木造船塢 (13.7219°N, 100.4704°E)',
-            camSpotTh: '📍 จุดยืนถ่าย: ชั้น 5 พระมหาเจดีย์มหารัชมงคล & ท่าเรือท้ายซอยเพชรเกษม 15 (มุมลับริมคลอง)',
-            camGps: '13.7219,100.4704',
-            desc: '塔內設有無障礙電梯直達頂層翡翠玻璃佛塔，長輩免爬樓梯即可輕鬆參拜拍照。',
-            photo: '📸 <strong>精準站位與構圖</strong>：<br>• <strong>室內琉璃塔</strong>：搭電梯上 5 樓，手機貼地於佛塔正前方地毯邊緣往上 45 度仰拍。<br>• <strong>戶外巨佛私房位</strong>：導航至運河對岸小巷（Soi Phet Kasem 15 底端咖啡館露台），用 3x 長焦拍大佛與水道同框。',
-            thaiName: 'วัดปากน้ำ ภาษีเจริญ (Wat Paknam)',
-            map: 'Wat+Paknam+Phasi+Charoen',
-            driverTip: '⚠️ <strong>มุมลับรับทิป:</strong> นอกจากขึ้นลิฟต์ไปชั้น 5 แล้ว ให้พาลูกค้าแวะซอยเพชรเกษม 15 ริมคลอง เพื่อถ่ายองค์พระใหญ่คู่กับเรือหางยาว'
-          }
+          { time: '10:00 - 13:00', name: '嵩越路河畔文青老街 (Song Wat Road)', desc: '百年老街文青復興！塗鴉牆、特色精品咖啡與米其林老店美食。', tip: '📸 司機現場幫拍：I Wanna Bangkok 塗鴉白牆前街拍大合照' },
+          { time: '14:30 - 17:00', name: '水門寺 20 層樓金色大佛 & 翡翠琉璃塔', desc: '塔內有無障礙電梯直達頂層琉璃佛塔，長輩免爬樓梯輕鬆參拜。', tip: '📸 司機現場幫拍：頂樓翡翠塔地面仰拍 + 運河對岸私房大佛景' }
         ]
       },
       pattaya: {
-        prompt: '情侶 2 人想去芭達雅狂拍室內網美照跟看海景日落晚餐，預算 3800',
-        tag: '🤖 AI 動線最佳化：全室內冷氣攝影棚・絕美懸崖日落',
-        title: '芭達雅 House of Benedict 奇幻影城 & 海景日落一日遊',
-        price: 3800,
+        title: '芭達雅奇幻影城 & 海景日落一日遊',
         spots: [
-          {
-            time: '11:30 - 14:30 ｜ 千萬級室內攝影棚',
-            name: 'House of Benedict 奇幻影城主題空間',
-            img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80',
-            camSpotZh: '📍 拍攝點：1 樓大廳中央純白旋轉木馬前・右側迴旋梯第 6 階俯拍位 (12.8452°N, 100.9168°E)',
-            camSpotTh: '📍 จุดยืนถ่าย: บันไดวนขั้นที่ 6 ข้างม้าหมุนสีขาวโถงกลางชั้น 1',
-            camGps: '12.8452,100.9168',
-            desc: '全室內冷氣開放！純白旋轉木馬、復古火車廂、波西米亞風，情侶連拍 100 張不流汗。',
-            photo: '📸 <strong>精準站位與構圖</strong>：<br>• <strong>旋轉木馬機位</strong>：拍攝者站上右側迴旋樓梯第 6 階往下俯拍，避開一樓路人背景。<br>• <strong>復古火車廂機位</strong>：客人坐第 2 節車廂靠窗位，拍攝者站在車廂外月台透過窗框平拍。',
-            thaiName: 'เฮาส์ ออฟ เบเนดิกต์ พัทยา',
-            map: 'House+of+Benedict+Pattaya',
-            driverTip: '⚠️ <strong>สิทธิพิเศษคนขับ & จุดถ่าย:</strong> รับคูปองน้ำฟรีที่เคาน์เตอร์ แล้วแนะนำลูกค้าไปยืนที่บันไดวนขั้นที่ 6 ข้างม้าหมุน'
-          }
+          { time: '11:30 - 14:30', name: 'House of Benedict 奇幻影城室內攝影棚', desc: '全室內冷氣開放！純白旋轉木馬、復古火車廂，連拍 100 張不曬流汗。', tip: '📸 司機現場幫拍：二樓階梯俯拍旋轉木馬全景' },
+          { time: '16:00 - 18:30', name: '懸崖海景餐廳日落晚餐', desc: '一邊享用精緻泰式海鮮晚餐，一邊欣賞暹羅灣絕美日落夕陽。', tip: '📸 司機現場幫拍：夕陽逆光剪影照' }
         ]
       }
     };
+
+    let activeSpots = TEMPLATES.safari.spots;
+
+    function fillQuick(text, title, price) {
+      document.getElementById('rawInput').value = text;
+      document.getElementById('quotePrice').value = price;
+      currentTitle = title;
+      if (text.includes('嵩越路') || text.includes('老街')) activeSpots = TEMPLATES.bkk.spots;
+      else if (text.includes('芭達雅')) activeSpots = TEMPLATES.pattaya.spots;
+      else activeSpots = TEMPLATES.safari.spots;
+      generateQuote();
+    }
+
+    function generateQuote() {
+      const name = document.getElementById('driverName').value.trim() || '阿明師';
+      const car = document.getElementById('driverCar').value.trim() || 'Toyota 9人座';
+      const price = Number(document.getElementById('quotePrice').value || 3500).toLocaleString();
+
+      document.getElementById('outTitle').innerText = currentTitle;
+      document.getElementById('outDriverMeta').innerText = `專屬司機：${name} ｜ ${car.split('｜')[0]}`;
+      document.getElementById('outPrice').innerText = price;
+
+      const list = document.getElementById('outSpotsList');
+      list.innerHTML = activeSpots.map(s => `
+        <div class="spot-block">
+          <div class="spot-time">${s.time}</div>
+          <div class="spot-name">${s.name}</div>
+          <div class="spot-desc">${s.desc}</div>
+          <div class="spot-photo-tip">${s.tip}</div>
+        </div>
+      `).join('');
+
+      showToast('⚡ 報價單已即時更新完成！');
+    }
+
+    function copyQuoteUrl() {
+      const name = encodeURIComponent(document.getElementById('driverName').value.trim() || '阿明師');
+      const car = encodeURIComponent(document.getElementById('driverCar').value.trim() || 'Toyota 9人座');
+      const price = document.getElementById('quotePrice').value;
+      const url = `${window.location.origin}${window.location.pathname}?d=${name}&c=${car}&p=${price}`;
+      navigator.clipboard.writeText(url);
+      showToast('✅ 已複製報價單專屬網址！');
+    }
 
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.innerText = msg;
       t.classList.add('show');
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+      clearTimeout(window._tTimer);
+      window._tTimer = setTimeout(() => t.classList.remove('show'), 2200);
     }
 
-    function renderStage(animate = true) {
-      const stage = document.getElementById('stageContainer');
-      const doUpdate = () => {
-        const data = SCENARIOS[currentKey];
-        const dName = document.getElementById('fName').value || '阿明師';
-        const dCar = document.getElementById('fCar').value || 'Toyota 9人座';
-        const dPrice = Number(document.getElementById('fPrice').value || data.price).toLocaleString();
-
-        document.getElementById('heroAiTag').innerText = data.tag;
-        document.getElementById('heroTitle').innerText = data.title;
-        document.getElementById('heroDriverMeta').innerText = `駕駛：${dName} ｜ ${dCar.split('｜')[0]}`;
-        document.getElementById('heroPrice').innerText = `${dPrice} THB / 車`;
-
-        const list = document.getElementById('spotsList');
-        list.innerHTML = data.spots.map(s => `
-          <article class="spot-card">
-            <div class="img-wrap">
-              <img class="spot-img" src="${s.img}" alt="${s.name}" loading="lazy">
-              <div class="cam-pin-badge">
-                <span>${currentRole === 'tourist' ? s.camSpotZh : s.camSpotTh}</span>
-                <a class="cam-pin-link" href="https://maps.google.com/?q=${s.camGps}" target="_blank">機位座標 ↗</a>
-              </div>
-            </div>
-            <div class="spot-content">
-              <div class="spot-time-badge">${s.time}</div>
-              <div class="spot-name">${s.name}</div>
-              ${currentRole === 'tourist' ? `
-                <p class="spot-desc">${s.desc}</p>
-                <div class="callout-box callout-tourist">${s.photo}</div>
-              ` : `
-                <p class="spot-desc" style="font-weight:700; color:#0F172A;">📍 ${s.thaiName}</p>
-                <div class="callout-box callout-driver">${s.driverTip}</div>
-                <div class="nav-btn-row">
-                  <a class="btn-map" href="https://maps.google.com/?q=${s.camGps}" target="_blank">🗺️ นำทางไปจุดยืนถ่ายรูป (${s.camGps})</a>
-                  <button class="btn-copy-th" onclick="copyText('${s.thaiName}', '✅ คัดลอกชื่อสถานที่แล้ว')">คัดลอกชื่อ</button>
-                </div>
-              `}
-            </div>
-          </article>
-        `).join('');
-      };
-
-      if (!animate) {
-        doUpdate();
+    function submitOrder() {
+      const name = document.getElementById('shipName').value.trim();
+      const addr = document.getElementById('shipAddr').value.trim();
+      const phone = document.getElementById('shipPhone').value.trim();
+      if (!name || !addr || !phone) {
+        alert('請填寫完整收件人資訊！');
         return;
       }
-      stage.classList.add('switching');
-      setTimeout(() => {
-        doUpdate();
-        stage.classList.remove('switching');
-      }, 170);
+      alert(`🎉 訂單已送出！\n\n收件人：${name}\n電話：${phone}\n地址：${addr}\n商品：車內雙面壓克力立牌 (390 THB)\n\n客服稍後將透過 LINE/電話與您確認出貨！`);
+      closeDialog('orderDialog');
     }
 
-    function selectScenario(key, btnEl) {
-      document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-      currentKey = key;
-      document.getElementById('promptInput').value = SCENARIOS[key].prompt;
-      document.getElementById('fPrice').value = SCENARIOS[key].price;
-      renderStage(true);
-    }
-
-    function triggerAiGenerate() {
-      if (!isPro && credits <= 0) {
-        openDialog('paywallDialog');
-        return;
+    function openDialog(id) {
+      if (id === 'qrDialog') {
+        const qT = document.getElementById('qrTourist');
+        const qD = document.getElementById('qrDriver');
+        qT.innerHTML = ''; qD.innerHTML = '';
+        new QRCode(qT, { text: window.location.href + '#tourist', width: 100, height: 100 });
+        new QRCode(qD, { text: window.location.href + '#driver', width: 100, height: 100 });
       }
-      if (!isPro) {
-        credits--;
-        document.getElementById('creditCount').innerText = credits;
-      }
-      const btn = document.getElementById('generateBtn');
-      btn.innerText = '⚡ AI 運算動線中...';
-      const val = document.getElementById('promptInput').value;
-      setTimeout(() => {
-        if (val.includes('長輩') || val.includes('大佛') || val.includes('老街')) currentKey = 'bkk';
-        else if (val.includes('芭達雅') || val.includes('情侶')) currentKey = 'pattaya';
-        else currentKey = 'safari';
-        btn.innerText = '✨ AI 重新生成';
-        renderStage(true);
-        showToast('🤖 AI 已生成雙視角客製行程！');
-      }, 320);
+      document.getElementById(id).showModal();
     }
-
-    function switchRole(role) {
-      currentRole = role;
-      document.getElementById('roleSegment').setAttribute('data-role', role);
-      document.getElementById('segTourist').classList.toggle('active', role === 'tourist');
-      document.getElementById('segDriver').classList.toggle('active', role === 'driver');
-      renderStage(true);
-    }
-
-    function saveDriverProfile() {
-      const name = document.getElementById('fName').value.trim() || '阿明師';
-      const car = document.getElementById('fCar').value.trim() || 'Toyota 9人座';
-      const price = document.getElementById('fPrice').value.trim() || '3500';
-      document.getElementById('uiDriverName').innerText = name;
-      document.getElementById('avatarChar').innerText = name.charAt(0);
-      document.getElementById('uiDriverCar').innerText = car;
-
-      const url = new URL(window.location);
-      url.searchParams.set('d', name);
-      url.searchParams.set('c', car);
-      url.searchParams.set('p', price);
-      window.history.replaceState({}, '', url);
-
-      closeDialog('profileDialog');
-      renderStage(false);
-      showToast('✅ 司機名片已同步更新');
-    }
-
-    function shareToLine() {
-      const name = document.getElementById('fName').value.trim() || '阿明師';
-      const car = document.getElementById('fCar').value.trim() || 'Toyota 9人座';
-      const price = document.getElementById('fPrice').value.trim() || '3500';
-      const url = new URL(window.location.href);
-      url.searchParams.set('d', name);
-      url.searchParams.set('c', car);
-      url.searchParams.set('p', price);
-      url.searchParams.set('r', currentKey);
-      url.searchParams.set('role', 'tourist');
-      navigator.clipboard.writeText(url.toString());
-      showToast('✅ 已複製乘客專屬網址！可直接貼到 LINE');
-    }
-
-    function copyCloser() {
-      navigator.clipboard.writeText(document.getElementById('closerText').innerText.trim());
-      closeDialog('closerDialog');
-      showToast('✅ 已複製高情商殺價救援話術');
-    }
-
-    function copyText(txt, toastMsg) {
-      navigator.clipboard.writeText(txt);
-      showToast(toastMsg);
-    }
-
-    function unlockPro(label) {
-      isPro = true;
-      document.getElementById('creditCount').innerText = 'PRO';
-      closeDialog('paywallDialog');
-      showToast('🎉 已開通：' + label);
-    }
-
-    function redeemVip() {
-      const code = document.getElementById('vipCodeInput').value.trim().toUpperCase();
-      if (code === 'VIP888') unlockPro('車隊團購 VIP888');
-      else showToast('⚠️ 請輸入測試碼 VIP888');
-    }
-
-    function openQrDialog() {
-      const qT = document.getElementById('qrTouristBox');
-      const qD = document.getElementById('qrDriverBox');
-      qT.innerHTML = ''; qD.innerHTML = '';
-      new QRCode(qT, { text: window.location.href + '#tourist', width: 108, height: 108 });
-      new QRCode(qD, { text: window.location.href + '#driver', width: 108, height: 108 });
-      openDialog('qrDialog');
-    }
-
-    function openDialog(id) { document.getElementById(id).showModal(); }
     function closeDialog(id) { document.getElementById(id).close(); }
 
-    // Safari / 舊瀏覽器 <dialog closedby="any"> Light-Dismiss Fallback
-    document.querySelectorAll('dialog').forEach((dialog) => {
-      if (!('closedBy' in HTMLDialogElement.prototype)) {
-        dialog.addEventListener('click', (event) => {
-          if (event.target !== dialog) return;
-          const rect = dialog.getBoundingClientRect();
-          const isDialogContent = (
-            rect.top <= event.clientY &&
-            event.clientY <= rect.top + rect.height &&
-            rect.left <= event.clientX &&
-            event.clientX <= rect.left + rect.width
-          );
-          if (isDialogContent) return;
-          dialog.close();
-        });
-      }
-    });
-
+    // 初始化讀取 URL 參數
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('d')) {
-        document.getElementById('fName').value = params.get('d');
-        document.getElementById('uiDriverName').innerText = params.get('d');
-        document.getElementById('avatarChar').innerText = params.get('d').charAt(0);
-      }
-      if (params.get('c')) {
-        document.getElementById('fCar').value = params.get('c');
-        document.getElementById('uiDriverCar').innerText = params.get('c');
-      }
-      if (params.get('p')) {
-        document.getElementById('fPrice').value = params.get('p');
-      }
-      if (params.get('r') && SCENARIOS[params.get('r')]) {
-        currentKey = params.get('r');
-        document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-        const pill = document.getElementById('pill-' + currentKey);
-        if (pill) pill.classList.add('active');
-        document.getElementById('promptInput').value = SCENARIOS[currentKey].prompt;
-      }
-      if (params.get('role') === 'driver') {
-        switchRole('driver');
-      } else {
-        renderStage(false);
-      }
+      if (params.get('d')) document.getElementById('driverName').value = params.get('d');
+      if (params.get('c')) document.getElementById('driverCar').value = params.get('c');
+      if (params.get('p')) document.getElementById('quotePrice').value = params.get('p');
+      generateQuote();
     });
   </script>
 </body>
